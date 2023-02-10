@@ -53,9 +53,11 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
         messageDisplay.InitInstance(hInst, hWnd);
         messageSend.InitInstance(hInst, hWnd);
         messageText.InitInstance(hInst, hWnd);
-        socket.connectToServer();
-        socket.sendMessage(profileUsername, strlen(profileUsername));
-        updates = std::thread(MainWindow::receiveMessage, (MainWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA));
+        
+        DialogBox(hInst, MAKEINTRESOURCE(IDD_PROFILEBOX), hWnd, &Profile);
+        DialogBox(hInst, MAKEINTRESOURCE(IDD_SERVERBOX), hWnd, &Server);
+        updates = std::thread(connectToServer, this);
+        
         
         break;
     case WM_COMMAND: {
@@ -70,6 +72,7 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
                 socket.sendMessage(str,length);
                 
             }
+            messageText.setText((LPSTR)"");
             break;
         }
 
@@ -81,11 +84,15 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
             break;
         case IDM_PROFILE:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_PROFILEBOX), hWnd, &Profile);
-            socket.updateInfo(profileUsername,serverIPAddress,serverPort);
+            flag = FALSE;
+            updates.join();
+            updates = std::thread(connectToServer, this);
             break;
         case IDM_SERVER:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_SERVERBOX), hWnd, &Server);
-            socket.updateInfo(profileUsername,serverIPAddress,serverPort);
+            flag = FALSE;
+            updates.join();
+            updates = std::thread(connectToServer, this);
             break;
         case IDM_EXIT:
             DestroyWindow(hWnd);
@@ -184,9 +191,6 @@ INT_PTR CALLBACK MainWindow::Profile(HWND hDlg, UINT message, WPARAM wParam, LPA
                 if (!GetDlgItemTextA(hDlg, IDC_USERNAME, profileUsername, MAX_LOADSTRING)) {
                     MessageBox(hDlg, L"Could Not Get Username!", L"Error", MB_OK);
                 }
-                else {
-                    MessageBoxA(hDlg,profileUsername, "Username", MB_OK);
-                }
             }
             EndDialog(hDlg, LOWORD(wParam));
             return (INT_PTR)TRUE;
@@ -210,14 +214,8 @@ INT_PTR CALLBACK MainWindow::Server(HWND hDlg, UINT message, WPARAM wParam, LPAR
                 if (!GetDlgItemTextA(hDlg, IDC_IPADDRESS, serverIPAddress, MAX_LOADSTRING)) {
                     MessageBox(hDlg, L"Could Not Get IP Address!", L"Error", MB_OK);
                 }
-                else {
-                    MessageBoxA(hDlg, serverIPAddress, "IP Address", MB_OK);
-                }
                 if (!GetDlgItemTextA(hDlg, IDC_PORT, serverPort, MAX_LOADSTRING)) {
                     MessageBox(hDlg, L"Could Not Get Port!", L"Error", MB_OK);
-                }
-                else {
-                    MessageBoxA(hDlg, serverPort, "Port", MB_OK);
                 }
             }
             EndDialog(hDlg, LOWORD(wParam));
@@ -229,14 +227,6 @@ INT_PTR CALLBACK MainWindow::Server(HWND hDlg, UINT message, WPARAM wParam, LPAR
 }
 
 void MainWindow::receiveMessage(MainWindow* ptr) {
-    WSADATA wsaData;
-
-    int res = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (res != 0) {
-        OutputDebugStringA("WSAStartup failed: ");
-        OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
-        OutputDebugStringA("\n");
-    }
 
     int len = 0;
     const int MAX_LEN = 1024;
@@ -249,6 +239,36 @@ void MainWindow::receiveMessage(MainWindow* ptr) {
         }
     } while (flag);
 
-    WSACleanup();
 
+}
+
+void MainWindow::connectToServer(MainWindow* ptr) {
+
+    WSADATA wsaData;
+
+    int res = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (res != 0) {
+        OutputDebugStringA("WSAStartup failed: ");
+        OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
+        OutputDebugStringA("\n");
+    }
+
+    int len = 25 + strlen(serverIPAddress) + strlen(serverPort) + 1;
+    LPSTR str = new CHAR[len];
+    strcpy_s(str, len, "Connecting to Server[");
+    strcat_s(str, len, serverIPAddress);
+    strcat_s(str, len, ":");
+    strcat_s(str, len, serverPort);
+    strcat_s(str, len, "]\r\n");
+    ptr->messageDisplay.updateText(str, strlen(str));
+    if ((ptr->socket.updateInfo(profileUsername, serverIPAddress, serverPort)) == 0) {
+        ptr->messageDisplay.updateText((LPSTR)"Successfully Connected to Server.\r\n",40);
+        ptr->receiveMessage(ptr);
+    }
+    else {
+        ptr->messageDisplay.updateText((LPSTR)"Unable to Connect with Server.\r\n",40);
+    }
+
+    
+    WSACleanup();
 }

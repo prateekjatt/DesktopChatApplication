@@ -35,6 +35,7 @@ public:
 	BOOL InitInstance(HINSTANCE, int);
 	
 	static void receiveMessage(MainWindow*);
+	static void connectToServer(MainWindow*);
 	
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 	static INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);

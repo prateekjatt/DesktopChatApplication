@@ -14,6 +14,7 @@
 struct Client {
 	SOCKET sock;
 	CHAR ipaddress[MAX_LENGTH];
+	CHAR username[MAX_LENGTH];
 };
 
 class Socket{

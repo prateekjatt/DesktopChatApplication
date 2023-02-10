@@ -26,7 +26,6 @@ int Socket::connectToServer() {
 		OutputDebugStringA("getaddrinfo failed: ");
 		OutputDebugStringA((LPSTR)std::to_string(res).c_str());
 		OutputDebugStringA("\n");
-		WSACleanup();
 		return 1;
 	}
 
@@ -36,7 +35,6 @@ int Socket::connectToServer() {
 		OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
 		OutputDebugStringA("\n");
 		freeaddrinfo(result);
-		WSACleanup();
 		return 1;
 	}
 	res = connect(sock, result->ai_addr, (int)result->ai_addrlen);
@@ -48,22 +46,28 @@ int Socket::connectToServer() {
 	freeaddrinfo(result);
 	if (sock == INVALID_SOCKET) {
 		OutputDebugStringA("Unable to connect to server!\n");
-		WSACleanup();
 		return 1;
 	}
 	else OutputDebugStringA("Connected to server!\n");
+
+	sendMessage(profileUsername, strlen(profileUsername));
 
 	return 0;
 }
 
 void Socket::sendMessage(PSTR buf,int len) {
+
+	if (sock == INVALID_SOCKET) {
+		OutputDebugStringA("Error: Attempting to send data to INVALID_SOCKET");
+		return;
+	}
+
 	int res = send(sock, buf, len, 0);
 	if (res == SOCKET_ERROR) {
 		OutputDebugStringA("Send failed: ");
 		OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
 		OutputDebugStringA("\n");
 		closesocket(sock);
-		WSACleanup();
 		return;
 	}
 
@@ -73,6 +77,11 @@ void Socket::sendMessage(PSTR buf,int len) {
 }
 
 int Socket::receiveMessage(PSTR buf,int buflen) {
+	if (sock == INVALID_SOCKET) {
+		OutputDebugStringA("Error: Attempting to send data to INVALID_SOCKET");
+		return 0;
+	}
+
 	int res = recv(sock, buf, buflen, 0);
 	if (res > 0) {
 		OutputDebugStringA("Bytes received: ");
@@ -88,7 +97,7 @@ int Socket::receiveMessage(PSTR buf,int buflen) {
 	return res;
 }
 
-void Socket::updateInfo(PSTR username, PSTR ipaddress, PSTR port) {
+int Socket::updateInfo(PSTR username, PSTR ipaddress, PSTR port) {
 	bool f = false;
 	if (strcmp(username, profileUsername)) {
 		strcpy_s(profileUsername, username);
@@ -103,9 +112,7 @@ void Socket::updateInfo(PSTR username, PSTR ipaddress, PSTR port) {
 		f = true;
 	}	
 
-	if (f) connectToServer();
-
-
+	return connectToServer();
 }
 
 void Socket::disconnect() {

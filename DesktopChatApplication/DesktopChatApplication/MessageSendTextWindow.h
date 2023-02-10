@@ -24,6 +24,7 @@ public:
 	MessageSendTextWindow() :hwnd(NULL), hInst(NULL), windowHeightScale(0.1f), windowWidthScale(0.9f) {}
 	BOOL InitInstance(HINSTANCE, HWND);
 	int getText(LPSTR,int);
+	int setText(LPSTR);
 	int getTextLength();
 	BOOL resize(HWND);
 };

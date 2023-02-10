@@ -21,7 +21,7 @@ public:
 	int connectToServer();
 	void sendMessage(PSTR,int);
 	int receiveMessage(PSTR,int);
-	void updateInfo(PSTR, PSTR, PSTR);
+	int updateInfo(PSTR, PSTR, PSTR);
 	void disconnect();
 };
 

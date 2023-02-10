@@ -42,6 +42,10 @@ int MessageSendTextWindow::getText(LPSTR str,int length) {
 	return GetWindowTextA(hwnd, str, length);
 }
 
+int MessageSendTextWindow::setText(LPSTR str) {
+	return SetWindowTextA(hwnd, "");
+}
+
 int MessageSendTextWindow::getTextLength() {
 	int len = GetWindowTextLengthA(hwnd);
 	return len;

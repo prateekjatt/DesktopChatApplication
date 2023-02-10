@@ -36,31 +36,6 @@ BOOL MessageDisplayWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
 	return TRUE;
 }
 
-
-//LRESULT CALLBACK MessageDisplayWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-//
-//	MessageDisplayWindow* ptr;
-//
-//	if (message == WM_NCCREATE) {
-//		CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
-//		ptr = (MessageDisplayWindow*)cs->lpCreateParams;
-//
-//		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)ptr);
-//
-//	}
-//	else ptr = (MessageDisplayWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-//
-//	if (ptr) return ptr->HandleMessage(hWnd, message, wParam, lParam);
-//
-//	return DefWindowProc(hWnd, message, wParam, lParam);
-//}
-//
-//LRESULT MessageDisplayWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-//	return DefWindowProc(hWnd, message, wParam, lParam);
-//}
-
-
-
 BOOL MessageDisplayWindow::updateText(LPSTR str,int len) {
 
 	int length = GetWindowTextLengthA(hwnd) + len + 2;

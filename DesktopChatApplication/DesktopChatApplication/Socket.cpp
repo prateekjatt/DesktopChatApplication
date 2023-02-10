@@ -1,7 +1,7 @@
 #include "Socket.h"
 
 
-Socket::Socket():sock(INVALID_SOCKET),profileUsername(""),profilePassword(""),serverIPAddress("127.0.0.1"),serverPort("80") {
+Socket::Socket():sock(INVALID_SOCKET),profileUsername(""),serverIPAddress("127.0.0.1"),serverPort("80") {
 	WSADATA wsaData;
 
 	int res = WSAStartup(MAKEWORD(2, 2), &wsaData);
@@ -88,14 +88,10 @@ int Socket::receiveMessage(PSTR buf,int buflen) {
 	return res;
 }
 
-void Socket::updateInfo(PSTR username, PSTR password, PSTR ipaddress, PSTR port) {
+void Socket::updateInfo(PSTR username, PSTR ipaddress, PSTR port) {
 	bool f = false;
 	if (strcmp(username, profileUsername)) {
 		strcpy_s(profileUsername, username);
-		f = true;
-	}
-	if (strcmp(password, profilePassword)){
-		strcpy_s(profilePassword,password);
 		f = true;
 	}
 	if (strcmp(ipaddress, serverIPAddress)){

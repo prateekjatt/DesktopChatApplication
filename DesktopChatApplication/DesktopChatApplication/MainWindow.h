@@ -17,7 +17,6 @@ private:
 	
 	Socket socket;
 	static CHAR profileUsername[MAX_LOADSTRING];
-	static CHAR profilePassword[MAX_LOADSTRING];
 	static CHAR serverIPAddress[MAX_LOADSTRING];
 	static CHAR serverPort[MAX_LOADSTRING];
 

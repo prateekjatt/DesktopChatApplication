@@ -12,7 +12,6 @@ class Socket{
 private:
 	SOCKET sock;
 	CHAR profileUsername[MAX_LOADSTRING];
-	CHAR profilePassword[MAX_LOADSTRING];
 	CHAR serverIPAddress[MAX_LOADSTRING];
 	CHAR serverPort[MAX_LOADSTRING];
 
@@ -22,7 +21,7 @@ public:
 	int connectToServer();
 	void sendMessage(PSTR,int);
 	int receiveMessage(PSTR,int);
-	void updateInfo(PSTR, PSTR, PSTR, PSTR);
+	void updateInfo(PSTR, PSTR, PSTR);
 	void disconnect();
 };
 

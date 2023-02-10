@@ -15,7 +15,6 @@
 #define IDC_DESKTOPCHATAPPLICATION      109
 #define IDR_MAINFRAME                   128
 #define IDC_USERNAME                    1000
-#define IDC_PASSWORD                    1001
 #define IDC_STATIC3                     1002
 #define IDC_STATIC2                     1003
 #define IDC_IPADDRESS                   1006

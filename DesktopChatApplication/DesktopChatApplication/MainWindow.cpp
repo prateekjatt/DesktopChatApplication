@@ -1,7 +1,6 @@
 #include "MainWindow.h"
 
 CHAR MainWindow::profileUsername[MAX_LOADSTRING] = "";
-CHAR MainWindow::profilePassword[MAX_LOADSTRING] = "";
 CHAR MainWindow::serverIPAddress[MAX_LOADSTRING] = "127.0.0.1";
 CHAR MainWindow::serverPort[MAX_LOADSTRING] = "80";
 BOOL MainWindow::flag = TRUE;
@@ -91,11 +90,11 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
             break;
         case IDM_PROFILE:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_PROFILEBOX), hWnd, &Profile);
-            socket.updateInfo(profileUsername,profilePassword,serverIPAddress,serverPort);
+            socket.updateInfo(profileUsername,serverIPAddress,serverPort);
             break;
         case IDM_SERVER:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_SERVERBOX), hWnd, &Server);
-            socket.updateInfo(profileUsername,profilePassword,serverIPAddress,serverPort);
+            socket.updateInfo(profileUsername,serverIPAddress,serverPort);
             break;
         case IDM_EXIT:
             DestroyWindow(hWnd);
@@ -197,12 +196,6 @@ INT_PTR CALLBACK MainWindow::Profile(HWND hDlg, UINT message, WPARAM wParam, LPA
                 }
                 else {
                     MessageBoxA(hDlg,profileUsername, "Username", MB_OK);
-                }
-                if (!GetDlgItemTextA(hDlg, IDC_PASSWORD, profilePassword, MAX_LOADSTRING)) {
-                    MessageBox(hDlg, L"Could Not Get Password!", L"Error", MB_OK);
-                }
-                else {
-                    MessageBoxA(hDlg, profilePassword, "Password", MB_OK);
                 }
             }
             EndDialog(hDlg, LOWORD(wParam));

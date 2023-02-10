@@ -17,13 +17,12 @@ class MessageSendTextWindow{
 private:
 	HWND hwnd;
 	HINSTANCE hInst;
-	double windowScale;
-	//LRESULT HandleMessage(HWND, UINT, WPARAM, LPARAM);
+	double windowWidthScale;
+	double windowHeightScale;
 
 public:
-	MessageSendTextWindow() :hwnd(NULL), hInst(NULL),windowScale(0.9f){}
+	MessageSendTextWindow() :hwnd(NULL), hInst(NULL), windowHeightScale(0.1f), windowWidthScale(0.9f) {}
 	BOOL InitInstance(HINSTANCE, HWND);
-	//static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 	int getText(LPSTR,int);
 	int getTextLength();
 	BOOL resize(HWND);

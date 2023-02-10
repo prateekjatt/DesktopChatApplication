@@ -44,44 +44,35 @@ BOOL MainWindow::InitInstance(HINSTANCE hInstance, int nCmdShow)
     return TRUE;
 }
 
-void MainWindow::receiveMessage(MainWindow* ptr) {
-    WSADATA wsaData;
-
-    int res = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    if (res != 0) {
-        OutputDebugStringA("WSAStartup failed: ");
-        OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
-        OutputDebugStringA("\n");
-    }
-
-    int len = 0;
-    const int MAX_LEN = 1024;
-    CHAR buf[MAX_LEN];
-    do {
-        len = ptr->socket.receiveMessage(buf,MAX_LEN);
-        if (len > 0) {
-            strcat_s(buf, MAX_LEN, "\r\n");
-            ptr->messageWindow.updateText(buf, len);
-        }
-    } while (flag);
-
-    WSACleanup();
-
-}
 
 
 LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
     switch (message)
     {
     case WM_CREATE:
-        messageWindow.MyRegisterClass(hInst);
-        messageWindow.InitInstance(hInst, hWnd);
+        messageDisplay.InitInstance(hInst, hWnd);
+        messageSend.InitInstance(hInst, hWnd);
+        messageText.InitInstance(hInst, hWnd);
         socket.connectToServer();
+        socket.sendMessage(profileUsername, strlen(profileUsername));
         updates = std::thread(MainWindow::receiveMessage, (MainWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA));
         
         break;
-    case WM_COMMAND:
-    {
+    case WM_COMMAND: {
+
+        if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == ID_SENDBTN) {
+            int length = messageText.getTextLength() + 1;
+            LPSTR str = new CHAR[length];
+            length = messageText.getText(str, length);
+
+            if (length > 0) {
+                // Use Socket To send message to server.
+                socket.sendMessage(str,length);
+                
+            }
+            break;
+        }
+
         int wmId = LOWORD(wParam);
         switch (wmId)
         {
@@ -102,8 +93,9 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
         default:
             return DefWindowProc(hWnd, message, wParam, lParam);
         }
+        break;
     }
-    break;
+
     case WM_PAINT:
     {
         PAINTSTRUCT ps;
@@ -117,7 +109,9 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
         break;
     }
     case WM_SIZE:
-        messageWindow.resize(hWnd);
+        messageText.resize(hWnd);
+        messageSend.resize(hWnd);
+        messageDisplay.resize(hWnd);
         break;
     case WM_DESTROY:
         flag = FALSE;
@@ -125,12 +119,7 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
         socket.disconnect();
         PostQuitMessage(0);
         break;
-    case PRIVATE_WM_SEND:
-        // Use Socket To send message to server.
-        socket.sendMessage((PSTR)lParam,wParam);
-        
 
-        break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);
     }
@@ -188,6 +177,7 @@ INT_PTR CALLBACK MainWindow::Profile(HWND hDlg, UINT message, WPARAM wParam, LPA
         return (INT_PTR)TRUE;
 
     case WM_COMMAND:
+
         if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
         {
             if (LOWORD(wParam) == IDOK) {
@@ -236,4 +226,29 @@ INT_PTR CALLBACK MainWindow::Server(HWND hDlg, UINT message, WPARAM wParam, LPAR
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+void MainWindow::receiveMessage(MainWindow* ptr) {
+    WSADATA wsaData;
+
+    int res = WSAStartup(MAKEWORD(2, 2), &wsaData);
+    if (res != 0) {
+        OutputDebugStringA("WSAStartup failed: ");
+        OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
+        OutputDebugStringA("\n");
+    }
+
+    int len = 0;
+    const int MAX_LEN = 1024;
+    CHAR buf[MAX_LEN];
+    do {
+        len = ptr->socket.receiveMessage(buf,MAX_LEN);
+        if (len > 0) {
+            strcat_s(buf, MAX_LEN, "\r\n");
+            ptr->messageDisplay.updateText(buf, len);
+        }
+    } while (flag);
+
+    WSACleanup();
+
 }

@@ -2,7 +2,9 @@
 
 #include "resource.h"
 #include "framework.h"
-#include "MessageWindow.h"
+#include "MessageSendTextWindow.h"
+#include "MessageSendButtonWindow.h"
+#include "MessageDisplayWindow.h"
 #include "Socket.h"
 #define MAX_LOADSTRING 100
 
@@ -23,10 +25,12 @@ private:
 	static BOOL flag;
 	std::thread updates;
 	
-	MessageWindow messageWindow;
+	MessageDisplayWindow messageDisplay;
+	MessageSendTextWindow messageText;
+	MessageSendButtonWindow messageSend;
 
 public:
-	MainWindow():hwnd(NULL),hInst(NULL),messageWindow(),szTitle(L""),szWindowClass(L""),socket(){}
+	MainWindow():hwnd(NULL),hInst(NULL),messageDisplay(), messageText(),messageSend(), szTitle(L"DesktopChatApplication"), szWindowClass(L"DESKTOPCHATAPPLICATION"), socket() {}
 	ATOM MyRegisterClass(HINSTANCE hInstance);
 	BOOL InitInstance(HINSTANCE, int);
 	

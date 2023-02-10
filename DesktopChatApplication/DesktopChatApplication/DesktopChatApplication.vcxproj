@@ -133,8 +133,6 @@
     <ClInclude Include="MessageDisplayWindow.h" />
     <ClInclude Include="MessageSendButtonWindow.h" />
     <ClInclude Include="MessageSendTextWindow.h" />
-    <ClInclude Include="MessageSendWindow.h" />
-    <ClInclude Include="MessageWindow.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="Socket.h" />
     <ClInclude Include="targetver.h" />
@@ -145,8 +143,6 @@
     <ClCompile Include="MessageDisplayWindow.cpp" />
     <ClCompile Include="MessageSendButtonWindow.cpp" />
     <ClCompile Include="MessageSendTextWindow.cpp" />
-    <ClCompile Include="MessageSendWindow.cpp" />
-    <ClCompile Include="MessageWindow.cpp" />
     <ClCompile Include="Socket.cpp" />
   </ItemGroup>
   <ItemGroup>

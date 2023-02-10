@@ -12,8 +12,8 @@ BOOL MessageSendButtonWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
 		L"BUTTON",
 		L"Send",
 		WS_CHILD,
-		rect.right - (parentWidth * windowScale), 0,
-		parentWidth * windowScale, parentHeight,
+		rect.right - (parentWidth * windowWidthScale), rect.bottom - (parentHeight * windowHeightScale),
+		parentWidth * windowWidthScale, parentHeight*windowHeightScale,
 		hWnd,
 		(HMENU)ID_SENDBTN,
 		hInst,
@@ -30,30 +30,6 @@ BOOL MessageSendButtonWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
 	return TRUE;
 }
 
-
-//LRESULT CALLBACK MessageSendButtonWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-//
-//	MessageSendButtonWindow* ptr;
-//
-//	if (message == WM_NCCREATE) {
-//		CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
-//		ptr = (MessageSendButtonWindow*)cs->lpCreateParams;
-//
-//		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)ptr);
-//
-//	}
-//	else ptr = (MessageSendButtonWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-//
-//	if (ptr) return ptr->HandleMessage(hWnd, message, wParam, lParam);
-//
-//	return DefWindowProc(hWnd, message, wParam, lParam);
-//}
-//
-//LRESULT MessageSendButtonWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-//	return DefWindowProc(hWnd, message, wParam, lParam);
-//
-//}
-
 BOOL MessageSendButtonWindow::resize(HWND hWnd) {
 
 	RECT rect;
@@ -62,8 +38,8 @@ BOOL MessageSendButtonWindow::resize(HWND hWnd) {
 	int parentHeight = (rect.bottom - rect.top);
 	BOOL f = MoveWindow(
 		hwnd,
-		rect.right - (parentWidth*windowScale), 0,
-		parentWidth*windowScale, parentHeight,
+		rect.right - (parentWidth*windowWidthScale), rect.bottom - (parentHeight * windowHeightScale),
+		parentWidth*windowWidthScale, parentHeight*windowHeightScale,
 		TRUE);
 
 	ShowWindow(hWnd, SW_SHOW);

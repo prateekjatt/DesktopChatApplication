@@ -11,8 +11,8 @@ BOOL MessageSendTextWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
 		L"EDIT",
 		NULL,
 		WS_CHILD | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL,
-		0, 0,
-		parentWidth*windowScale, parentHeight,
+		0, rect.bottom - (parentHeight * windowHeightScale),
+		parentWidth*windowWidthScale, parentHeight,
 		hWnd,
 		(HMENU)(int)(1),
 		hInst,
@@ -38,30 +38,6 @@ BOOL MessageSendTextWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
 	return TRUE;
 }
 
-
-//LRESULT CALLBACK MessageSendTextWindow::WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-//
-//	MessageSendTextWindow* ptr;
-//
-//	if (message == WM_NCCREATE) {
-//		CREATESTRUCT* cs = (CREATESTRUCT*)lParam;
-//		ptr = (MessageSendTextWindow*)cs->lpCreateParams;
-//
-//		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)ptr);
-//
-//	}
-//	else ptr = (MessageSendTextWindow*)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-//
-//	if (ptr) return ptr->HandleMessage(hWnd, message, wParam, lParam);
-//
-//	return DefWindowProc(hWnd, message, wParam, lParam);
-//}
-//
-//LRESULT MessageSendTextWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-//	return DefWindowProc(hWnd, message, wParam, lParam);
-//
-//}
-
 int MessageSendTextWindow::getText(LPSTR str,int length) {
 	return GetWindowTextA(hwnd, str, length);
 }
@@ -80,8 +56,8 @@ BOOL MessageSendTextWindow::resize(HWND hWnd) {
 	int parentHeight = (rect.bottom - rect.top);
 	BOOL f = MoveWindow(
 		hwnd,
-		0,0,
-		parentWidth*windowScale, parentHeight,
+		0, rect.bottom - (parentHeight * windowHeightScale),
+		parentWidth*windowWidthScale, parentHeight,
 		TRUE);
 
 	RECT rc;

@@ -23,5 +23,6 @@ public:
 	int receiveMessage(PSTR,int);
 	int updateInfo(PSTR, PSTR, PSTR);
 	void disconnect();
+	~Socket();
 };
 

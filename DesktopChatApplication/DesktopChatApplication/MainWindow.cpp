@@ -86,12 +86,14 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
             DialogBox(hInst, MAKEINTRESOURCE(IDD_PROFILEBOX), hWnd, &Profile);
             flag = FALSE;
             updates.join();
+            socket.disconnect();
             updates = std::thread(connectToServer, this);
             break;
         case IDM_SERVER:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_SERVERBOX), hWnd, &Server);
             flag = FALSE;
             updates.join();
+            socket.disconnect();
             updates = std::thread(connectToServer, this);
             break;
         case IDM_EXIT:

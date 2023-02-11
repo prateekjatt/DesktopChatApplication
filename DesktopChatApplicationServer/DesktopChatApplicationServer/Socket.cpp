@@ -27,7 +27,6 @@ void Socket::initServer() {
 	int res = getaddrinfo(NULL, port, &hints, &result);
 	if (res != 0) {
 		std::cout << "getaddrinfo failed: " << res << '\n';
-		WSACleanup();
 		return;
 	}
 
@@ -36,7 +35,6 @@ void Socket::initServer() {
 	if (sock == INVALID_SOCKET) {
 		std::cout << "Error at socket(): " << WSAGetLastError()<<"\n";
 		freeaddrinfo(result);
-		WSACleanup();
 		return;
 	}
 
@@ -47,7 +45,6 @@ void Socket::initServer() {
 		std::cout << "Bind Failed with error: " << WSAGetLastError() << "\n";
 		freeaddrinfo(result);
 		closesocket(sock);
-		WSACleanup();
 		return;
 	}
 
@@ -55,7 +52,6 @@ void Socket::initServer() {
 	if (listen(sock, SOMAXCONN) == SOCKET_ERROR) {
 		std::cout << "Listen failed with error: " << WSAGetLastError() << '\n';
 		closesocket(sock);
-		WSACleanup();
 		return;
 	}
 
@@ -73,7 +69,6 @@ void Socket::acceptClients() {
 		if (client == INVALID_SOCKET) {
 			std::cout << "Accept failed: " << WSAGetLastError() << '\n';
 			closesocket(sock);
-			WSACleanup();
 			return;
 		}
 
@@ -126,9 +121,9 @@ void Socket::recvUpdates(Client client) {
 				}
 				else {
 					strcpy_s(sendbuf, 2 * len, client.username);
-					strcpy_s(sendbuf, 2 * len, "[");
-					strcpy_s(sendbuf, 2 * len, client.ipaddress);
-					strcpy_s(sendbuf, 2 * len, "]\0");
+					strcat_s(sendbuf, 2 * len, "[");
+					strcat_s(sendbuf, 2 * len, client.ipaddress);
+					strcat_s(sendbuf, 2 * len, "]\0");
 				}
 
 				res += (strlen(sendbuf) + 1);

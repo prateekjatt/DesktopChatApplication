@@ -118,5 +118,9 @@ int Socket::updateInfo(PSTR username, PSTR ipaddress, PSTR port) {
 void Socket::disconnect() {
 	shutdown(sock, SD_BOTH);
 	closesocket(sock);
+}
+
+Socket::~Socket() {
 	WSACleanup();
+
 }

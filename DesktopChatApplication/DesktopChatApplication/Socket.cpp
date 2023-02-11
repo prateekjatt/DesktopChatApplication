@@ -6,9 +6,7 @@ Socket::Socket():sock(INVALID_SOCKET),profileUsername(""),serverIPAddress("127.0
 
 	int res = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (res != 0) {
-		OutputDebugStringA("WSAStartup failed: ");
-		OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
-		OutputDebugStringA("\n");
+		OutputDebugStringA(("WSAStartup failed: " + std::to_string(WSAGetLastError()) + "\n").c_str());
 	}
 }
 
@@ -23,17 +21,13 @@ int Socket::connectToServer() {
 	int res = getaddrinfo(serverIPAddress, serverPort, &hints, &result);
 
 	if (res != 0) {
-		OutputDebugStringA("getaddrinfo failed: ");
-		OutputDebugStringA((LPSTR)std::to_string(res).c_str());
-		OutputDebugStringA("\n");
+		OutputDebugStringA(("getaddrinfo failed: "+std::to_string(res)+"\n").c_str());
 		return 1;
 	}
 
 	sock = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (sock == INVALID_SOCKET) {
-		OutputDebugStringA("socket failed: ");
-		OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
-		OutputDebugStringA("\n");
+		OutputDebugStringA(("socket failed: "+std::to_string(WSAGetLastError())+"\n").c_str());
 		freeaddrinfo(result);
 		return 1;
 	}
@@ -55,44 +49,37 @@ int Socket::connectToServer() {
 	return 0;
 }
 
-void Socket::sendMessage(PSTR buf,int len) {
+int Socket::sendMessage(PSTR buf,int len) {
 
 	if (sock == INVALID_SOCKET) {
-		OutputDebugStringA("Error: Attempting to send data to INVALID_SOCKET");
-		return;
+		OutputDebugStringA("Error: Attempting to send data to INVALID_SOCKET\n");
+		return SOCKET_ERROR;
 	}
 
 	int res = send(sock, buf, len, 0);
 	if (res == SOCKET_ERROR) {
-		OutputDebugStringA("Send failed: ");
-		OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
-		OutputDebugStringA("\n");
-		closesocket(sock);
-		return;
+		OutputDebugStringA(("Send failed: "+std::to_string(WSAGetLastError())+"\n").c_str());
+	}
+	else {
+		OutputDebugStringA(("Bytes Sent: "+std::to_string(res)+"\n").c_str());
 	}
 
-	OutputDebugStringA("Bytes Sent: ");
-	OutputDebugStringA((LPSTR)std::to_string(res).c_str());
-	OutputDebugStringA("\n");
+	return res;
 }
 
 int Socket::receiveMessage(PSTR buf,int buflen) {
 	if (sock == INVALID_SOCKET) {
-		OutputDebugStringA("Error: Attempting to send data to INVALID_SOCKET");
-		return 0;
+		OutputDebugStringA("Error: Attempting to recv data from INVALID_SOCKET\n");
+		return SOCKET_ERROR;
 	}
 
 	int res = recv(sock, buf, buflen, 0);
 	if (res > 0) {
-		OutputDebugStringA("Bytes received: ");
-		OutputDebugStringA((LPSTR)std::to_string(res).c_str());
-		OutputDebugStringA("\n");
+		OutputDebugStringA(("Bytes received: "+std::to_string(res)+"\n").c_str());
 	}
 	else if (res == 0) OutputDebugStringA("Connection Closed\n");
 	else {
-		OutputDebugStringA("recv failed: ");
-		OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
-		OutputDebugStringA("\n");
+		OutputDebugStringA(("recv failed: "+std::to_string(WSAGetLastError())+"\n").c_str());
 	}
 	return res;
 }
@@ -116,8 +103,13 @@ int Socket::updateInfo(PSTR username, PSTR ipaddress, PSTR port) {
 }
 
 void Socket::disconnect() {
-	shutdown(sock, SD_BOTH);
-	closesocket(sock);
+
+	if (sock != INVALID_SOCKET) {
+		shutdown(sock, SD_BOTH);
+		closesocket(sock);
+	}
+
+	sock = INVALID_SOCKET;
 }
 
 Socket::~Socket() {

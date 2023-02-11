@@ -19,7 +19,7 @@ private:
 public:
 	Socket();
 	int connectToServer();
-	void sendMessage(PSTR,int);
+	int sendMessage(PSTR,int);
 	int receiveMessage(PSTR,int);
 	int updateInfo(PSTR, PSTR, PSTR);
 	void disconnect();

@@ -1,7 +1,6 @@
 #include "Socket.h"
 
-std::vector<Client> Socket::clients = {};
-std::vector<std::thread> Socket::clientThread = {};
+std::vector<std::pair<Client,std::thread>> Socket::clients = {};
 BOOL Socket::flag = TRUE;
 
 Socket::Socket():sock(INVALID_SOCKET),port("80"),ipaddress("0.0.0.0"),welcomeText("\r\n========================================================================\r\n"
@@ -93,8 +92,7 @@ void Socket::acceptClients() {
 		// Sending Welcome Text to Client.
 		send(cl.sock, welcomeText, WELTEXTLEN, 0);
 
-		clients.push_back(cl);
-		clientThread.push_back(std::thread(recvUpdates,cl));
+		clients.push_back({ cl,std::thread(recvUpdates,cl) });
 	} while (flag);
 
 }
@@ -103,7 +101,6 @@ void Socket::recvUpdates(Client client) {
 
 	int len = 1024;
 	PCHAR buf = new CHAR[len];
-	PCHAR sendbuf = new CHAR[2*len];
 	do {
 		// Receiving Messages from Clients.
 		int res = recv(client.sock, buf, len, 0);
@@ -111,39 +108,75 @@ void Socket::recvUpdates(Client client) {
 
 			// New Message Received from Client.
 			if (res < len) buf[res] = '\0';
-			std::cout << "Bytes received from " <<client.username<<"[" << client.ipaddress <<"]" << ": " << res << '\n';
+			std::cout << "Bytes received from " <<client.username<<"[" << client.ipaddress <<"]: " << res << '\n';
 			std::cout << "Buffer: " << buf << '\n';
 
 			// Broadcasting Message to All Clients.
-			for (const auto& cl : Socket::clients) {
-				if (strcmp(cl.ipaddress, client.ipaddress) == 0) {
-					strcpy_s(sendbuf, 2 * len, "You: \0");
-				}
-				else {
-					strcpy_s(sendbuf, 2 * len, client.username);
-					strcat_s(sendbuf, 2 * len, "[");
-					strcat_s(sendbuf, 2 * len, client.ipaddress);
-					strcat_s(sendbuf, 2 * len, "]\0");
-				}
+			sendUpdates(client, buf, 2*len);
 
-				res += (strlen(sendbuf) + 1);
-				strcat_s(sendbuf, res, buf);
-				res = send(cl.sock, sendbuf, res, 0);
-			}
 		}
 		else if (res == 0) return;
 		else {
-			std::cout << "Error in receiving from user "<<client.username<<"[" << client.ipaddress <<"]" << ": " << WSAGetLastError() << "\n";
+			std::cout << "Error in receiving from user "<<client.username<<"[" << client.ipaddress <<"]: " << WSAGetLastError() << "\n";
 			return;
 		}
 	} while (flag);
 }
 
+void Socket::sendUpdates(Client client,PSTR buf,int len) {
+	
+	// Vector to store disconnected clients.
+	std::vector<Client> vec;
+
+	PCHAR sendbuf = new CHAR[len];
+	for (const auto &cl: Socket::clients) {
+		if (strcmp(cl.first.ipaddress, client.ipaddress) == 0) {
+			strcpy_s(sendbuf, len, "You: ");
+		}
+		else {
+			strcpy_s(sendbuf, len, client.username);
+			strcat_s(sendbuf, len, "[");
+			strcat_s(sendbuf, len, client.ipaddress);
+			strcat_s(sendbuf, len, "]: ");
+		}
+
+		strcat_s(sendbuf, len, buf);
+		 int res = send(cl.first.sock, sendbuf, strlen(sendbuf)+1, 0);
+
+		 if (res == SOCKET_ERROR) {
+			 vec.push_back(cl.first);
+		 }
+	}
+
+
+	// Delete All Disconnected Clients from clients vector.
+	for (auto &cl : vec) {
+		shutdown(cl.sock, SD_BOTH);
+		closesocket(cl.sock);
+
+		std::cout << "Client Disconnected: " << cl.username << "[" << cl.ipaddress << "]\n";
+	}
+
+	clients.erase(std::remove_if(clients.begin(),clients.end(), [&vec](const std::pair<Client, std::thread>& cl) {
+
+		for (auto& a : vec) {
+			if (strcmp(cl.first.username,a.username) == 0 && strcmp(cl.first.ipaddress,a.ipaddress) == 0) {
+				return true;
+			}
+		}
+
+		return false;
+
+	}),clients.end());
+
+}
 
 Socket::~Socket() {
 	flag = FALSE;
-	for (auto &th : clientThread) {
-		th.join();
+	for (auto &th : clients) {
+		shutdown(th.first.sock, SD_BOTH);
+		closesocket(th.first.sock);
+		th.second.join();
 	}
 	closesocket(sock);
 	WSACleanup();

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <thread>
 #include <vector>
+#include <algorithm>
 
 #pragma comment(lib,"Ws2_32.lib")
 
@@ -23,14 +24,14 @@ private:
 	CHAR ipaddress[MAX_LENGTH];
 	CHAR port[MAX_LENGTH];
 	CHAR welcomeText[WELTEXTLEN];
-	static std::vector<Client> clients;
-	static std::vector<std::thread> clientThread;
+	static std::vector<std::pair<Client, std::thread>> clients;
 	static BOOL flag;
 public:
 	Socket();
 	void initServer();
 	void acceptClients();
 	static void recvUpdates(Client);
+	static void sendUpdates(Client,PSTR,int);
 	~Socket();
 
 };

@@ -41,6 +41,10 @@ BOOL MainWindow::InitInstance(HINSTANCE hInstance, int nCmdShow)
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
 
+    DialogBox(hInst, MAKEINTRESOURCE(IDD_PROFILEBOX), hwnd, &Profile);
+    DialogBox(hInst, MAKEINTRESOURCE(IDD_SERVERBOX), hwnd, &Server);
+    recvThread = std::thread(connectToServer, this);
+
     return TRUE;
 }
 
@@ -54,25 +58,12 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
         messageSend.InitInstance(hInst, hWnd);
         messageText.InitInstance(hInst, hWnd);
         
-        DialogBox(hInst, MAKEINTRESOURCE(IDD_PROFILEBOX), hWnd, &Profile);
-        DialogBox(hInst, MAKEINTRESOURCE(IDD_SERVERBOX), hWnd, &Server);
-        updates = std::thread(connectToServer, this);
-        
-        
         break;
     case WM_COMMAND: {
 
         if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == ID_SENDBTN) {
-            int length = messageText.getTextLength() + 1;
-            LPSTR str = new CHAR[length];
-            length = messageText.getText(str, length);
-
-            if (length > 0) {
-                // Use Socket To send message to server.
-                socket.sendMessage(str,length);
-                
-            }
-            messageText.setText((LPSTR)"");
+            if (sendThread.joinable()) sendThread.join();
+            sendThread = std::thread(sendMessage,this);
             break;
         }
 
@@ -84,17 +75,13 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
             break;
         case IDM_PROFILE:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_PROFILEBOX), hWnd, &Profile);
-            flag = FALSE;
-            updates.join();
-            socket.disconnect();
-            updates = std::thread(connectToServer, this);
+            disconnectToServer(this);
+            recvThread = std::thread(connectToServer, this);
             break;
         case IDM_SERVER:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_SERVERBOX), hWnd, &Server);
-            flag = FALSE;
-            updates.join();
-            socket.disconnect();
-            updates = std::thread(connectToServer, this);
+            disconnectToServer(this);
+            recvThread = std::thread(connectToServer, this);
             break;
         case IDM_EXIT:
             DestroyWindow(hWnd);
@@ -123,9 +110,7 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
         messageDisplay.resize(hWnd);
         break;
     case WM_DESTROY:
-        flag = FALSE;
-        updates.join();
-        socket.disconnect();
+        disconnectToServer(this);
         PostQuitMessage(0);
         break;
 
@@ -228,31 +213,53 @@ INT_PTR CALLBACK MainWindow::Server(HWND hDlg, UINT message, WPARAM wParam, LPAR
     return (INT_PTR)FALSE;
 }
 
+void MainWindow::sendMessage(MainWindow* ptr) {
+    int length = ptr->messageText.getTextLength() + 1;
+    LPSTR str = new CHAR[length];
+    length = ptr->messageText.getText(str, length);
+
+    if (length > 0) {
+        // Use Socket To send message to server.
+        int res = ptr->socket.sendMessage(str, length);
+
+        if (res == SOCKET_ERROR) {
+            disconnectToServer(ptr);
+            ptr->messageDisplay.updateText((LPSTR)"Server Disconnected\r\n", 23);
+        }
+    }
+    ptr->messageText.setText((LPSTR)"");
+}
+
 void MainWindow::receiveMessage(MainWindow* ptr) {
 
-    int len = 0;
+    flag = TRUE;
+    int res = 0;
     const int MAX_LEN = 1024;
     CHAR buf[MAX_LEN];
     do {
-        len = ptr->socket.receiveMessage(buf,MAX_LEN);
-        if (len > 0) {
+        res = ptr->socket.receiveMessage(buf,MAX_LEN);
+        if (res > 0) {
             strcat_s(buf, MAX_LEN, "\r\n");
-            ptr->messageDisplay.updateText(buf, len);
+            ptr->messageDisplay.updateText(buf, res);
+        }
+        else if(flag != FALSE){
+            flag = FALSE;
+            ptr->messageDisplay.updateText((LPSTR)"Server Disconnected\r\n", 23);
+
         }
     } while (flag);
+
 
 
 }
 
 void MainWindow::connectToServer(MainWindow* ptr) {
-
+    
     WSADATA wsaData;
 
     int res = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (res != 0) {
-        OutputDebugStringA("WSAStartup failed: ");
-        OutputDebugStringA((LPSTR)std::to_string(WSAGetLastError()).c_str());
-        OutputDebugStringA("\n");
+        OutputDebugStringA(("WSAStartup failed: "+std::to_string(WSAGetLastError())+"\n").c_str());
     }
 
     int len = 25 + strlen(serverIPAddress) + strlen(serverPort) + 1;
@@ -273,4 +280,12 @@ void MainWindow::connectToServer(MainWindow* ptr) {
 
     
     WSACleanup();
+}
+
+void MainWindow::disconnectToServer(MainWindow* ptr) {
+    flag = FALSE;
+    ptr->socket.disconnect();
+    
+    if(ptr->recvThread.joinable()) ptr->recvThread.join();
+
 }

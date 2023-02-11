@@ -23,7 +23,8 @@ private:
 	static CHAR serverPort[MAX_LOADSTRING];
 
 	static BOOL flag;
-	std::thread updates;
+	std::thread recvThread;
+	std::thread sendThread;
 	
 	MessageDisplayWindow messageDisplay;
 	MessageSendTextWindow messageText;
@@ -34,8 +35,11 @@ public:
 	ATOM MyRegisterClass(HINSTANCE hInstance);
 	BOOL InitInstance(HINSTANCE, int);
 	
+	static void sendMessage(MainWindow*);
 	static void receiveMessage(MainWindow*);
 	static void connectToServer(MainWindow*);
+	static void disconnectToServer(MainWindow*);
+
 	
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 	static INT_PTR CALLBACK About(HWND, UINT, WPARAM, LPARAM);

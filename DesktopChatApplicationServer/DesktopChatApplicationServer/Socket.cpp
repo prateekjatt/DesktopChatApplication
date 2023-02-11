@@ -130,7 +130,7 @@ void Socket::sendUpdates(Client client,PSTR buf,int len) {
 
 	PCHAR sendbuf = new CHAR[len];
 	for (const auto &cl: Socket::clients) {
-		if (strcmp(cl.first.ipaddress, client.ipaddress) == 0) {
+		if (strcmp(cl.first.ipaddress, client.ipaddress) == 0 && strcmp(cl.first.username, client.username) == 0) {
 			strcpy_s(sendbuf, len, "You: ");
 		}
 		else {
@@ -154,21 +154,18 @@ void Socket::sendUpdates(Client client,PSTR buf,int len) {
 		shutdown(cl.sock, SD_BOTH);
 		closesocket(cl.sock);
 
-		std::cout << "Client Disconnected: " << cl.username << "[" << cl.ipaddress << "]\n";
-	}
-
-	clients.erase(std::remove_if(clients.begin(),clients.end(), [&vec](const std::pair<Client, std::thread>& cl) {
-
-		for (auto& a : vec) {
-			if (strcmp(cl.first.username,a.username) == 0 && strcmp(cl.first.ipaddress,a.ipaddress) == 0) {
-				return true;
+		std::vector<std::pair<Client, std::thread>>::iterator it = clients.begin();
+		for (; it != clients.end(); it++) {
+			if (strcmp(it->first.username, cl.username) == 0 && strcmp(it->first.ipaddress, cl.ipaddress) == 0) {
+				break;
 			}
 		}
 
-		return false;
+		it->second.join();
+		clients.erase(it);
 
-	}),clients.end());
-
+		std::cout << "Client Disconnected: " << cl.username << "[" << cl.ipaddress << "]\n";
+	}
 }
 
 Socket::~Socket() {

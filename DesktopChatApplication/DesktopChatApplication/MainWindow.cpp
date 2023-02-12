@@ -111,6 +111,7 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
         break;
     case WM_DESTROY:
         disconnectToServer(this);
+        if (sendThread.joinable()) sendThread.join();
         PostQuitMessage(0);
         break;
 

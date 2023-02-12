@@ -115,12 +115,12 @@ void Socket::recvUpdates(Client client) {
 			sendUpdates(client, buf, 2*len);
 
 		}
-		else if (res == 0) return;
 		else {
-			std::cout << "Error in receiving from user "<<client.username<<"[" << client.ipaddress <<"]: " << WSAGetLastError() << "\n";
-			return;
+			break;
 		}
 	} while (flag);
+	
+	std::cout << "Client Disconnected: " << client.username << "[" << client.ipaddress << "]\n";
 }
 
 void Socket::sendUpdates(Client client,PSTR buf,int len) {
@@ -163,8 +163,6 @@ void Socket::sendUpdates(Client client,PSTR buf,int len) {
 
 		it->second.join();
 		clients.erase(it);
-
-		std::cout << "Client Disconnected: " << cl.username << "[" << cl.ipaddress << "]\n";
 	}
 }
 

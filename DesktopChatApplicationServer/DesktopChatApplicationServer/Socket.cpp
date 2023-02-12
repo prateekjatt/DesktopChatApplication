@@ -72,7 +72,7 @@ void Socket::acceptClients() {
 		}
 
 		// Receiving New Client Info.
-		Client cl;
+		Client cl = {};
 		cl.sock = client;
 		inet_ntop(AF_INET,&(sa.sin_addr),cl.ipaddress,MAX_LENGTH);
 
@@ -101,6 +101,9 @@ void Socket::recvUpdates(Client client) {
 
 	int len = 1024;
 	PCHAR buf = new CHAR[len];
+
+	sendUpdates(client, (PSTR)std::string("Joined The Chat.\0").c_str(),2*len);
+
 	do {
 		// Receiving Messages from Clients.
 		int res = recv(client.sock, buf, len, 0);
@@ -121,6 +124,8 @@ void Socket::recvUpdates(Client client) {
 	} while (flag);
 	
 	std::cout << "Client Disconnected: " << client.username << "[" << client.ipaddress << "]\n";
+
+	sendUpdates(client, (PSTR)std::string("Left The Chat.\0").c_str(),2*len);
 }
 
 void Socket::sendUpdates(Client client,PSTR buf,int len) {

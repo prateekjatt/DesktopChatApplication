@@ -1,8 +1,7 @@
 #include "MessageDisplayWindow.h"
 
 BOOL MessageDisplayWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
-	hInst = hInstance;
-
+	
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 	int parentWidth = (rect.right - rect.left);
@@ -15,7 +14,7 @@ BOOL MessageDisplayWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
 		parentWidth, (int)parentHeight * windowScale,
 		hWnd,
 		(HMENU)(int)(1),
-		hInst,
+		hInstance,
 		this);
 
 	if (!hwnd) {

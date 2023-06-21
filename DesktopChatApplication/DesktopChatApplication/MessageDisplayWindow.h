@@ -6,12 +6,11 @@
 class MessageDisplayWindow{
 private:
 	HWND hwnd;
-	HINSTANCE hInst;
 	double windowScale;
 	WCHAR szWindowClass[MAX_STRING];
 
 public:
-	MessageDisplayWindow():hwnd(NULL),hInst(NULL),szWindowClass(L"MESSAGEDISPLAYWINDOW"),windowScale(0.9f){}
+	MessageDisplayWindow():hwnd(NULL),szWindowClass(L"MESSAGEDISPLAYWINDOW"),windowScale(0.9f){}
 	BOOL InitInstance(HINSTANCE, HWND);
 	BOOL resize(HWND);
 	BOOL updateText(LPSTR,int);

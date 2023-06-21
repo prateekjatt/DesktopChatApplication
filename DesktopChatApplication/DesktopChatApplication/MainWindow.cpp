@@ -67,8 +67,7 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT message, WPARAM wParam, LPARAM
             break;
         }
 
-        int wmId = LOWORD(wParam);
-        switch (wmId)
+        switch (LOWORD(wParam))
         {
         case IDM_ABOUT:
             DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, &About);
@@ -160,7 +159,7 @@ INT_PTR CALLBACK MainWindow::About(HWND hDlg, UINT message, WPARAM wParam, LPARA
         }
         break;
     }
-    return (INT_PTR)FALSE;
+   return (INT_PTR)FALSE;
 }
 
 INT_PTR CALLBACK MainWindow::Profile(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -263,7 +262,7 @@ void MainWindow::connectToServer(MainWindow* ptr) {
         OutputDebugStringA(("WSAStartup failed: "+std::to_string(WSAGetLastError())+"\n").c_str());
     }
 
-    int len = 25 + strlen(serverIPAddress) + strlen(serverPort) + 1;
+    int len = 27 + strlen(serverIPAddress) + strlen(serverPort) + 1;
     LPSTR str = new CHAR[len];
     strcpy_s(str, len, "Connecting to Server[");
     strcat_s(str, len, serverIPAddress);

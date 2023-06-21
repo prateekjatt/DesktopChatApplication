@@ -16,12 +16,11 @@
 class MessageSendTextWindow{
 private:
 	HWND hwnd;
-	HINSTANCE hInst;
 	double windowWidthScale;
 	double windowHeightScale;
 
 public:
-	MessageSendTextWindow() :hwnd(NULL), hInst(NULL), windowHeightScale(0.1f), windowWidthScale(0.9f) {}
+	MessageSendTextWindow() :hwnd(NULL), windowHeightScale(0.1f), windowWidthScale(0.9f) {}
 	BOOL InitInstance(HINSTANCE, HWND);
 	int getText(LPSTR,int);
 	int setText(LPSTR);

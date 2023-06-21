@@ -1,8 +1,7 @@
 #include "MessageSendTextWindow.h"
 
 BOOL MessageSendTextWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
-	hInst = hInstance;
-
+	
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 	int parentWidth = (rect.right - rect.left);
@@ -15,7 +14,7 @@ BOOL MessageSendTextWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
 		parentWidth*windowWidthScale, parentHeight,
 		hWnd,
 		(HMENU)(int)(1),
-		hInst,
+		hInstance,
 		this);
 
 	if (!hwnd) {

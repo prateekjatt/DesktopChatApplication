@@ -15,7 +15,7 @@ Socket::Socket():sock(INVALID_SOCKET),port("80"),ipaddress("0.0.0.0"),welcomeTex
 }
 
 void Socket::initServer() {
-	struct addrinfo* result = nullptr, * ptr = nullptr, hints;
+	struct addrinfo* result = nullptr, hints;
 
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;

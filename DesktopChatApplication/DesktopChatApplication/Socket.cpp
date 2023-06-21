@@ -11,7 +11,7 @@ Socket::Socket():sock(INVALID_SOCKET),profileUsername(""),serverIPAddress("127.0
 }
 
 int Socket::connectToServer() {
-	struct addrinfo* result = nullptr, * ptr = nullptr, hints;
+	struct addrinfo* result = nullptr, hints;
 
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
@@ -85,18 +85,15 @@ int Socket::receiveMessage(PSTR buf,int buflen) {
 }
 
 int Socket::updateInfo(PSTR username, PSTR ipaddress, PSTR port) {
-	bool f = false;
+	
 	if (strcmp(username, profileUsername)) {
 		strcpy_s(profileUsername, username);
-		f = true;
 	}
 	if (strcmp(ipaddress, serverIPAddress)){
 		strcpy_s(serverIPAddress,ipaddress);
-		f = true;
 	}	
 	if (strcmp(port, serverPort)){
 		strcpy_s(serverPort,port);
-		f = true;
 	}	
 
 	return connectToServer();

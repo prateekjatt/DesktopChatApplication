@@ -2,8 +2,7 @@
 
 
 BOOL MessageSendButtonWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
-	hInst = hInstance;
-
+	
 	RECT rect;
 	GetClientRect(hWnd, &rect);
 	int parentWidth = (rect.right - rect.left);
@@ -16,7 +15,7 @@ BOOL MessageSendButtonWindow::InitInstance(HINSTANCE hInstance, HWND hWnd) {
 		parentWidth * windowWidthScale, parentHeight*windowHeightScale,
 		hWnd,
 		(HMENU)ID_SENDBTN,
-		hInst,
+		hInstance,
 		this);
 
 	if (!hwnd) {
